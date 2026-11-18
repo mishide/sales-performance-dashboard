@@ -1,0 +1,51 @@
+table 'BillTo_C (2)'
+	lineageTag: 77c8ce88-86fd-43f3-80e3-1f9f24ad9aaa
+
+	column BillToEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: eb3fbaa4-355f-402d-90f7-4a400d0694df
+		summarizeBy: none
+		sourceColumn: BillToEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillToCustomerrep
+		dataType: string
+		lineageTag: 93a30260-1a98-4e2e-b294-0669b93d1a1d
+		summarizeBy: none
+		sourceColumn: BillToCustomerrep
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: f1b1c917-9b85-45f6-ad1f-c849e1e018c2
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Territory
+		dataType: string
+		lineageTag: e6941d87-560c-4a93-8fa1-1ee054b71246
+		summarizeBy: none
+		sourceColumn: Territory
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'BillTo_C (2)' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\BillTo_C.csv"), [Delimiter=",", Columns=20, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Promoted Headers",{"BillToEntityDetailId", "BillToCustomerrep", "Region", "Territory"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns",{{"BillToEntityDetailId", Int64.Type}, {"BillToCustomerrep", type text}, {"Region", type text}, {"Territory", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,411 @@
+table FULL_BillTo
+	lineageTag: 0e6abc53-0a56-47e3-a8f0-7964937aee52
+
+	column billToEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: 22d9cde2-412f-42a2-990a-5516b980bdbe
+		summarizeBy: none
+		sourceColumn: billToEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToDisplayName
+		dataType: string
+		lineageTag: 2ef8a2f3-20be-4772-aa4a-624032b5636f
+		summarizeBy: none
+		sourceColumn: billToDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToAccountingCode
+		dataType: string
+		lineageTag: c6fa4157-9369-4286-8e66-5c97f02467be
+		summarizeBy: none
+		sourceColumn: billToAccountingCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Member
+		dataType: string
+		lineageTag: 7fa91604-b9ab-4727-a63e-e0b2f2c26a4a
+		summarizeBy: none
+		sourceColumn: Member
+
+		annotation SummarizationSetBy = Automatic
+
+	column creditlimit
+		dataType: int64
+		formatString: 0
+		lineageTag: 8659f8d6-8236-4a6c-a6f7-f31d5ee8ec0f
+		summarizeBy: sum
+		sourceColumn: creditlimit
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToSubCommunity
+		dataType: string
+		lineageTag: 8c9d68ed-924b-4356-9e19-927a7f05e87c
+		summarizeBy: none
+		sourceColumn: billToSubCommunity
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToAddr1
+		dataType: string
+		lineageTag: 9c7d3b63-bbb7-4ffc-b42c-c75f3de67573
+		summarizeBy: none
+		sourceColumn: billToAddr1
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToAddr2
+		dataType: string
+		lineageTag: 73a9721a-6b06-424d-bf51-973143bb9a3e
+		summarizeBy: none
+		sourceColumn: billToAddr2
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToCity
+		dataType: string
+		lineageTag: 23cbbbfd-4da0-432e-8639-140139b76b88
+		summarizeBy: none
+		sourceColumn: billToCity
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToState
+		dataType: string
+		lineageTag: 5f72e25f-4862-4049-8d9b-94882659c594
+		summarizeBy: none
+		sourceColumn: billToState
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToPostalCode
+		dataType: string
+		lineageTag: 279a96bb-857f-4972-9d3b-864c8a50b812
+		summarizeBy: none
+		sourceColumn: billToPostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToCountryCode
+		dataType: string
+		lineageTag: 2adc2d7d-37a7-4c3b-b35c-d1e7198e0229
+		summarizeBy: none
+		sourceColumn: billToCountryCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToPhoneNumber
+		dataType: string
+		lineageTag: 791fa906-559f-40fd-b44c-61b03bd73142
+		summarizeBy: none
+		sourceColumn: billToPhoneNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToCreatedDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 05efeb91-da96-42d9-9e1a-08388a94ea15
+		summarizeBy: none
+		sourceColumn: billToCreatedDate
+
+		variation Variation
+			isDefault
+			relationship: 4395d8c1-d3c6-4e02-bae5-7c6f25595e3a
+			defaultHierarchy: LocalDateTable_f349b5e1-8150-41ba-abbc-0e119c5dc703.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billToProgramStartDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2b08c431-8163-4e89-a147-0e68260b4737
+		summarizeBy: none
+		sourceColumn: billToProgramStartDate
+
+		variation Variation
+			isDefault
+			relationship: 3d83437d-d6e2-42d7-b81f-b9bb76fef69a
+			defaultHierarchy: LocalDateTable_31efdeb9-a3fa-408a-96af-67bb652152d6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billToIsActive
+		dataType: string
+		lineageTag: b2876630-0b4a-4acc-9362-e5a0fb167cd9
+		summarizeBy: none
+		sourceColumn: billToIsActive
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToIsTerminated
+		dataType: string
+		lineageTag: 04320b56-ddaf-446c-8951-a1ebc96cbbd9
+		summarizeBy: none
+		sourceColumn: billToIsTerminated
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToTerminationDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 14d6512e-0889-4d38-ac6d-8af7ee6e2411
+		summarizeBy: none
+		sourceColumn: billToTerminationDate
+
+		variation Variation
+			isDefault
+			relationship: a4fd866c-72dc-4662-a811-93f32cdd6b00
+			defaultHierarchy: LocalDateTable_fb400d9c-6426-41e6-a9b8-597e62fe346e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billToTransactionableLocation
+		dataType: string
+		lineageTag: 7b8ecc8f-ef74-44bd-819d-a27f728e5d15
+		summarizeBy: none
+		sourceColumn: billToTransactionableLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToEntityCode
+		dataType: string
+		lineageTag: 3a51984d-a87e-40e9-9111-3a0f05a8151e
+		summarizeBy: none
+		sourceColumn: billToEntityCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToCommunityCode
+		dataType: string
+		lineageTag: de15dde7-7c5a-4583-b31b-8a50f1a46265
+		summarizeBy: none
+		sourceColumn: billToCommunityCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToLastUpdatedDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c0c4b4cf-8efb-494a-8974-e9434a05ddca
+		summarizeBy: none
+		sourceColumn: billToLastUpdatedDate
+
+		variation Variation
+			isDefault
+			relationship: dcedf54a-55df-4395-958b-1625b5032531
+			defaultHierarchy: LocalDateTable_20baca9a-51b7-4ef7-b4f0-e25a84c2d3b8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billTosubCommunityId
+		dataType: int64
+		formatString: 0
+		lineageTag: add7fc8f-fd91-4a54-bb95-cee94bd57b8c
+		summarizeBy: count
+		sourceColumn: billTosubCommunityId
+
+		annotation SummarizationSetBy = Automatic
+
+	column billTosubCommunityName
+		dataType: string
+		lineageTag: 7ba75dab-aa94-4a54-8013-f9683dffd266
+		summarizeBy: none
+		sourceColumn: billTosubCommunityName
+
+		annotation SummarizationSetBy = Automatic
+
+	column HQAddress
+		dataType: string
+		lineageTag: 60ad1837-205a-4561-8bdf-04a8f1634b28
+		summarizeBy: none
+		sourceColumn: HQAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Executive'
+		dataType: string
+		lineageTag: f21d4cfb-abd3-4fba-9f19-3c1434dbd2c9
+		summarizeBy: none
+		sourceColumn: Sales Executive
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 5c5c69f0-9ac5-46e0-bd27-5adc81b1b88a
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Territory
+		dataType: string
+		lineageTag: 59ee31c3-b929-4738-916f-0ad5719358bf
+		summarizeBy: none
+		sourceColumn: Territory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ParentID
+		dataType: int64
+		formatString: 0
+		lineageTag: e3de8789-e45d-4ab5-b7e4-085ea7e7a211
+		summarizeBy: count
+		sourceColumn: ParentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Terminated
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 61ac19b2-5c83-4e76-b50d-b8dea836cf30
+		summarizeBy: none
+		sourceColumn: Terminated
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaxTerminationDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6380d629-05d2-4b1f-9142-fb39862bb861
+		summarizeBy: none
+		sourceColumn: MaxTerminationDate
+
+		variation Variation
+			isDefault
+			relationship: 1f055362-55a9-4798-aa7b-ac40f511a68a
+			defaultHierarchy: LocalDateTable_563b4177-1bca-4243-bb05-0982860d9b26.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2025Spend = ```
+			
+			VAR CurrentDate = TODAY()
+			RETURN
+			CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    FILTER(
+			        ALL('Calendar'),
+			        YEAR('Calendar'[Date]) = 2025
+			    )
+			)
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 4a6b8144-0fb2-4e4a-acc6-bffcd1840e23
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column BillToCustomerrep
+		dataType: string
+		lineageTag: ba483b1c-1c3f-49fc-ade7-746aca5b56a9
+		summarizeBy: none
+		sourceColumn: BillToCustomerrep
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Region.1'
+		dataType: string
+		lineageTag: 9c173653-b6bf-4058-a6e6-a9d5c0ac79a8
+		summarizeBy: none
+		sourceColumn: Region.1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Territory.1'
+		dataType: string
+		lineageTag: e56d5b5a-02fa-491f-ac7e-a9c974a74379
+		summarizeBy: none
+		sourceColumn: Territory.1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Custom
+		dataType: string
+		lineageTag: 78a50db6-89fe-4cfe-960e-f65b3bf4d002
+		summarizeBy: none
+		sourceColumn: Custom
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2026Spend =
+			
+			VAR CurrentDate = TODAY()
+			RETURN
+			CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    FILTER(
+			        ALL('Calendar'),
+			        YEAR('Calendar'[Date]) = 2026
+			    )
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 8ee7b9c2-9eca-4b16-a141-233ccaccdf08
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'REGION corr' =
+			
+			'FULL_BillTo'[Region]
+		lineageTag: 04c1f4e6-c158-4ef9-a40f-7b668dc2baf0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToCode
+		dataType: string
+		lineageTag: f2b11748-fd15-45b6-bcc6-62d298c79ace
+		summarizeBy: none
+		sourceColumn: billToCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToYearStart
+		dataType: int64
+		formatString: 0
+		lineageTag: dfc5821b-4849-40e5-b127-0050ebbe1de0
+		summarizeBy: sum
+		sourceColumn: billToYearStart
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FULL_BillTo = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\FULL_BillTo.csv"), [Delimiter=",", Columns=32, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"billToEntityDetailId", Int64.Type}, {"billToDisplayName", type text}, {"billToCode", type text}, {"billToAccountingCode", type text}, {"billToLegalName", type text}, {"creditlimit", Int64.Type}, {"billToSubCommunity", type text}, {"billToAddr1", type text}, {"billToAddr2", type text}, {"billToCity", type text}, {"billToState", type text}, {"billToPostalCode", type text}, {"billToCountryCode", type text}, {"billToPhoneNumber", type text}, {"billToCreatedDate", type datetime}, {"billToProgramStartDate", type datetime}, {"billToIsActive", type text}, {"billToIsTerminated", type text}, {"billToTerminationDate", type datetime}, {"billToTransactionableLocation", type text}, {"billToEntityCode", type text}, {"billToCommunityCode", type text}, {"billToLastUpdatedDate", type datetime}, {"billTosubCommunityId", Int64.Type}, {"billTosubCommunityName", type text}, {"HQAddress", type text}, {"Sales Executive", type text}, {"Region", type text}, {"Territory", type text}, {"ParentID", Int64.Type}, {"Terminated", type logical}, {"MaxTerminationDate", type datetime}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"billToCreatedDate", type date}, {"billToProgramStartDate", type date}, {"billToTerminationDate", type date}, {"billToLastUpdatedDate", type date}}),
+				    #"Added billToYearStart" = Table.AddColumn(#"Changed Type1", "billToYearStart", each Date.Year([billToProgramStartDate]), Int64.Type),
+				    #"Merged Queries" = Table.NestedJoin(#"Added billToYearStart", {"billToEntityDetailId"}, #"BillTo_C (2)", {"BillToEntityDetailId"}, "BillTo_C (2)", JoinKind.LeftOuter),
+				    #"Expanded BillTo_C (2)" = Table.ExpandTableColumn(#"Merged Queries", "BillTo_C (2)", {"BillToCustomerrep", "Region", "Territory"}, {"BillToCustomerrep", "Region.1", "Territory.1"}),
+				    #"Added Custom" = Table.AddColumn(#"Expanded BillTo_C (2)", "Custom", each if [BillToCustomerrep] <> null then [BillToCustomerrep] else [Sales Executive]),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Added Custom",{{"billToLegalName", "Member"}})
+				in
+				    #"Renamed Columns1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

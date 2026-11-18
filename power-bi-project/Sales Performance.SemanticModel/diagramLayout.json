@@ -1,0 +1,138 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 101.50255590712391,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 742,
+            "y": 121
+          },
+          "nodeIndex": "FirstInvoiceDate",
+          "nodeLineageTag": "726e4895-091f-443b-a27e-16233aa83188",
+          "size": {
+            "height": 269,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 477,
+            "y": 236
+          },
+          "nodeIndex": "Invoice_Detailed",
+          "nodeLineageTag": "529249ad-ad70-450d-b09e-817aadcedd6c",
+          "size": {
+            "height": 477,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 480.79999542236328,
+            "y": 0
+          },
+          "nodeIndex": "Calendar",
+          "nodeLineageTag": "d8271ba0-a9f6-4b8f-8c8a-89959764364b",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 101,
+            "y": 234
+          },
+          "nodeIndex": "FULL_BillTo",
+          "nodeLineageTag": "0e6abc53-0a56-47e3-a8f0-7964937aee52",
+          "size": {
+            "height": 481.44597249508843,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 835.69155206286837,
+            "y": 459.69548133595282
+          },
+          "nodeIndex": "Churned Members",
+          "nodeLineageTag": "f39bc250-ad88-4c4d-8a12-2273e5b0ca00",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 1476.9607072691551,
+            "y": 19.709233791748531
+          },
+          "nodeIndex": "ChurnBillings",
+          "nodeLineageTag": "6fda8aef-afd0-40e8-b3ff-fb5c8f96e425",
+          "size": {
+            "height": 206.34184675834979,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 1014,
+            "y": 104
+          },
+          "nodeIndex": "ChurnTable",
+          "nodeLineageTag": "9ddad308-7721-4e19-ba7e-9c79f6113569",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 101.15717092337957,
+            "y": 0
+          },
+          "nodeIndex": "Billings Summary",
+          "nodeLineageTag": "90a602fe-a067-418b-8f66-a5f0fddbc1f7",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1437,
+            "y": 268.5
+          },
+          "nodeIndex": "BillTo_C (2)",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 81.180223285486449,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

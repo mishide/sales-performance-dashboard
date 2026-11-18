@@ -1,0 +1,121 @@
+table 'Churned Members'
+	lineageTag: f39bc250-ad88-4c4d-8a12-2273e5b0ca00
+
+	column ParentID
+		dataType: int64
+		formatString: 0
+		lineageTag: 7c05872d-4c12-4073-8156-b4f7ad928b06
+		summarizeBy: none
+		sourceColumn: ParentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaxTerminationDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 9e8dfaa3-a56b-4de2-bdf8-6942d09eae76
+		summarizeBy: none
+		sourceColumn: MaxTerminationDate
+
+		variation Variation
+			isDefault
+			relationship: e6e988d6-6a53-49f7-a9db-e8583d950a12
+			defaultHierarchy: LocalDateTable_97c001ed-392e-411f-988c-7c79e24f7a23.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 12MonthPurchases =
+			
+			VAR TermDate =
+			    MAX ( 'Churned Members'[MaxTerminationDate] )
+			VAR StartDate =
+			    EDATE ( TermDate, -12 )
+			
+			RETURN
+			CALCULATE (
+			    SUM ( 'Invoice_Detailed'[APTrxAmt] ),
+			    FILTER (
+			        ALL ( 'Invoice_Detailed'[MonthStart] ),
+			        'Invoice_Detailed'[MonthStart] > StartDate
+			            && 'Invoice_Detailed'[MonthStart] <= TermDate
+			    )
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 4cef0641-903b-4dfd-8458-f4ed9c65a801
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column MonthlyAVG = [12MonthPurchases] / 12
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: a5571f2b-d1c4-4e5f-b2a8-412043ece743
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column Region
+		dataType: string
+		lineageTag: 417da347-e6bc-4e4d-9d7c-30eda8f54968
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Territory
+		dataType: string
+		lineageTag: 544accd0-b3f1-40cd-a41d-8f27ce59e961
+		summarizeBy: none
+		sourceColumn: Territory
+
+		annotation SummarizationSetBy = Automatic
+
+	column RemainingMonths
+		dataType: string
+		lineageTag: 1c749970-ec06-4e61-9830-91c3848e7e62
+		summarizeBy: none
+		sourceColumn: RemainingMonths
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearsChurn = -[MonthlyAVG] * [RemainingMonths]
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 9ddf19e3-7353-4148-bdb5-f28387bab1e4
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition 'Churned Members' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\FULL_BillTo.csv"), [Delimiter=",", Columns=32, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"billToEntityDetailId", Int64.Type}, {"billToDisplayName", type text}, {"billToCode", type text}, {"billToAccountingCode", type text}, {"billToLegalName", type text}, {"creditlimit", Int64.Type}, {"billToSubCommunity", type text}, {"billToAddr1", type text}, {"billToAddr2", type text}, {"billToCity", type text}, {"billToState", type text}, {"billToPostalCode", type text}, {"billToCountryCode", type text}, {"billToPhoneNumber", type text}, {"billToCreatedDate", type datetime}, {"billToProgramStartDate", type datetime}, {"billToIsActive", type text}, {"billToIsTerminated", type text}, {"billToTerminationDate", type datetime}, {"billToTransactionableLocation", type text}, {"billToEntityCode", type text}, {"billToCommunityCode", type text}, {"billToLastUpdatedDate", type datetime}, {"billTosubCommunityId", Int64.Type}, {"billTosubCommunityName", type text}, {"HQAddress", type text}, {"Sales Executive", type text}, {"Region", type text}, {"Territory", type text}, {"ParentID", Int64.Type}, {"Terminated", type logical}, {"MaxTerminationDate", type datetime}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"billToCreatedDate", type date}, {"billToProgramStartDate", type date}, {"billToTerminationDate", type date}, {"billToLastUpdatedDate", type date}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Changed Type1", each ([Terminated] = true)),
+				    #"Filtered Rows1" = Table.SelectRows(#"Filtered Rows", each [billToLastUpdatedDate] > #date(2022, 12, 31)),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Filtered Rows1",{{"MaxTerminationDate", type date}}),
+				    #"Grouped Rows" = Table.Group(#"Changed Type2", {"ParentID", "MaxTerminationDate", "Region", "Territory"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Grouped Rows",{"Count"}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Removed Columns", "MaxTerminationDate", "MaxTerminationDate - Copy"),
+				    #"Split Column by Delimiter" = Table.SplitColumn(Table.TransformColumnTypes(#"Duplicated Column", {{"MaxTerminationDate - Copy", type text}}, "en-US"), "MaxTerminationDate - Copy", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"MaxTerminationDate - Copy.1", "MaxTerminationDate - Copy.2", "MaxTerminationDate - Copy.3"}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Split Column by Delimiter",{"MaxTerminationDate - Copy.2", "MaxTerminationDate - Copy.3"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Removed Columns1",{{"MaxTerminationDate - Copy.1", Int64.Type}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type3", "RemainingMonths", each 12 - [#"MaxTerminationDate - Copy.1"]),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Added Custom",{"MaxTerminationDate - Copy.1"}),
+				    #"Sorted Rows" = Table.Sort(#"Removed Columns2",{{"ParentID", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,39 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["BillFrom_C","BillTo_C","FirstInvoiceDate","Invoice_Detailed","FULL_BillTo","Churned Members","BillFrom_C (2)","ChurnTable","ChurnBillings","BillTo_C (2)","DataFolder"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_5db2b847-8793-4a26-a925-6897f7c33607
+ref table FirstInvoiceDate
+ref table Invoice_Detailed
+ref table Calendar
+ref table LocalDateTable_14f4ec19-4a7a-4df1-a29d-e843d463cccf
+ref table LocalDateTable_be07a0c7-7339-4d12-9c75-78fd9b8f5d5f
+ref table FULL_BillTo
+ref table LocalDateTable_f349b5e1-8150-41ba-abbc-0e119c5dc703
+ref table LocalDateTable_31efdeb9-a3fa-408a-96af-67bb652152d6
+ref table LocalDateTable_fb400d9c-6426-41e6-a9b8-597e62fe346e
+ref table LocalDateTable_20baca9a-51b7-4ef7-b4f0-e25a84c2d3b8
+ref table 'Churned Members'
+ref table LocalDateTable_97c001ed-392e-411f-988c-7c79e24f7a23
+ref table LocalDateTable_563b4177-1bca-4243-bb05-0982860d9b26
+ref table ChurnTable
+ref table LocalDateTable_6ed40f0c-8cf5-4ef9-a74c-57db10ba6295
+ref table LocalDateTable_0790be63-645a-440c-8f69-ab952298118e
+ref table ChurnBillings
+ref table LocalDateTable_95a53a79-a1c3-4a1b-adf3-edddd9328185
+ref table 'BillTo_C (2)'
+ref table 'Billings Summary'
+
+ref cultureInfo en-US
+

@@ -1,0 +1,197 @@
+table FirstInvoiceDate
+	lineageTag: 726e4895-091f-443b-a27e-16233aa83188
+
+	measure Title = ```
+			
+			---"SEGMENT MEMBER NEW (+) PROGRAM SPEND  " & 
+			    FORMAT(
+			        FIRSTNONBLANK('Calendar'[Month-Year], 0),
+			        "MMMM yyyy"
+			    ) &    "   Segment Member New Supplier Spend"
+			```
+		lineageTag: e44086c0-0229-4b75-b8d0-bd21af501145
+
+	measure Sales = CALCULATE(SUM('Invoice_Detailed'[APTrxAmt]))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 1e41b72a-ca22-4d70-80f1-ea902b3a8244
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column bt_bf_key
+		dataType: string
+		lineageTag: ab30ed1f-4313-4d00-b4c1-f42329d0c6b1
+		summarizeBy: none
+		sourceColumn: bt_bf_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: fc08fe74-e35c-40bf-8f4e-5d780c031d0d
+		summarizeBy: count
+		sourceColumn: billToEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstInvoiceYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 02fe1cde-3d66-411a-8e68-3c38bea909e6
+		summarizeBy: sum
+		sourceColumn: FirstInvoiceYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column billFromEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: d738779f-f46a-443e-95f5-d881bf39b035
+		summarizeBy: count
+		sourceColumn: billFromEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstMonthInvoice
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c890abc0-f2ba-4676-8733-89d5f548b3ad
+		summarizeBy: none
+		sourceColumn: FirstMonthInvoice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Terminated
+		dataType: string
+		lineageTag: 2a8a4cb2-0102-4fa8-818d-485ed83e75af
+		summarizeBy: none
+		sourceColumn: Terminated
+
+		annotation SummarizationSetBy = Automatic
+
+	column Customer
+		dataType: string
+		lineageTag: a71d1f3c-2309-4f11-8593-e5e8717a36e8
+		summarizeBy: none
+		sourceColumn: Customer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Executive'
+		dataType: string
+		lineageTag: a89191aa-921e-42fa-90a6-83c43999ec28
+		summarizeBy: none
+		sourceColumn: Sales Executive
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: c8fbf145-2d69-4f90-b9b9-d7cb61101e93
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Territory
+		dataType: string
+		lineageTag: 1c116baa-70d2-4166-ad27-2c971a18ef74
+		summarizeBy: none
+		sourceColumn: Territory
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer Acct Age (Years)'
+		dataType: double
+		formatString: 0.0
+		lineageTag: 54480551-97bd-4931-9e7a-6373b2cfe739
+		summarizeBy: sum
+		sourceColumn: Customer Acct Age (Years)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier Type'
+		dataType: string
+		lineageTag: f4fb3f6a-9341-49ec-adb2-e3bc9d8a1c57
+		summarizeBy: none
+		sourceColumn: Supplier Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column MemberStartYear
+		dataType: int64
+		formatString: 0
+		lineageTag: bf3e0fd4-0c38-42ce-bbda-0f344fd0a4b6
+		summarizeBy: sum
+		sourceColumn: MemberStartYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillFromNewName
+		dataType: string
+		lineageTag: 11a309e3-9cec-40e3-9395-0d769707c7d4
+		summarizeBy: none
+		sourceColumn: BillFromNewName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Member_Status_Label
+		dataType: string
+		lineageTag: eae5e065-cb6b-4223-b7c3-03fe122d05f3
+		summarizeBy: none
+		sourceColumn: Member_Status_Label
+
+		annotation SummarizationSetBy = Automatic
+
+	column MemberStatus
+		dataType: string
+		lineageTag: ed80f791-5354-4b69-9b57-328e4ca38f3d
+		summarizeBy: none
+		sourceColumn: MemberStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column Supplier
+		dataType: string
+		lineageTag: 4e987d8d-e2e4-4c62-8f20-85a9dacdd4e0
+		summarizeBy: none
+		sourceColumn: Supplier
+
+		annotation SummarizationSetBy = Automatic
+
+	column bt_bf_s
+		dataType: string
+		lineageTag: 0b3363c0-13bf-4c12-a038-ce3a32d3ec96
+		summarizeBy: none
+		sourceColumn: bt_bf_s
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FirstInvoiceDate = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\FirstInvoiceDate.csv"), [Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"billToEntityDetailId", Int64.Type}, {"bt_bf_key", type text}, {"FirstInvoiceYear", Int64.Type}, {"FirstMonthInvoice", type datetime}, {"MemberStartYear", Int64.Type}, {"MemberStatus", type text}, {"billFromEntityDetailId", Int64.Type}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"FirstMonthInvoice", type date}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type1", {"billToEntityDetailId"}, BillTo_C, {"BillToEntityDetailId"}, "BillTo_C", JoinKind.Inner),
+				    #"Expanded BillTo_C" = Table.ExpandTableColumn(#"Merged Queries", "BillTo_C", {"Terminated", "Customer", "Sales Executive", "Region", "Territory", "Customer Acct Age (Years)"}, {"Terminated", "Customer", "Sales Executive", "Region", "Territory", "Customer Acct Age (Years)"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Expanded BillTo_C",{{"Customer Acct Age (Years)", type number}, {"Territory", type text}, {"Region", type text}, {"Sales Executive", type text}, {"Customer", type text}, {"Terminated", type text}, {"FirstMonthInvoice", type date}, {"billFromEntityDetailId", Int64.Type}}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Changed Type2", {"billFromEntityDetailId"}, #"BillFrom_C (2)", {"BillFromEntityDetailId_child"}, "BillFrom_C (2)", JoinKind.LeftOuter),
+				    #"Expanded BillFrom_C (2)1" = Table.ExpandTableColumn(#"Merged Queries2", "BillFrom_C (2)", {"Supplier", "BillFromNewName", "BillFromEntityDetailId", "Supplier Type"}, {"Supplier", "BillFromNewName", "BillFromEntityDetailId.1", "Supplier Type"}),
+				    #"Added Custom" = Table.AddColumn(#"Expanded BillFrom_C (2)1", "Member_Status_Label", each if [FirstInvoiceYear] = [MemberStartYear] then "New" else "Established"),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Added Custom", "billToEntityDetailId", "billToEntityDetailId - Copy"),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Duplicated Column",{"billToEntityDetailId", "bt_bf_key", "FirstInvoiceYear", "FirstMonthInvoice", "billFromEntityDetailId", "MemberStartYear", "MemberStatus", "Terminated", "Customer", "Sales Executive", "Region", "Territory", "Customer Acct Age (Years)", "Supplier", "BillFromNewName", "Supplier Type", "Member_Status_Label", "billToEntityDetailId - Copy", "BillFromEntityDetailId.1"}),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Reordered Columns", "bt_bf_s", each Text.Combine({Text.From([#"billToEntityDetailId - Copy"], "en-US"), Text.From([BillFromEntityDetailId.1], "en-US")}, "-"), type text),
+				    #"Removed Columns" = Table.RemoveColumns(#"Inserted Merged Column",{"billToEntityDetailId - Copy", "BillFromEntityDetailId.1"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Removed Columns",{{"bt_bf_s", type text}})
+				in
+				    #"Changed Type3"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

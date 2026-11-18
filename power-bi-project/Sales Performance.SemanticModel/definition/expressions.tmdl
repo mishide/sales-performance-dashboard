@@ -1,0 +1,66 @@
+expression BillFrom_C =
+		let
+		    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\BillFrom_C.csv"), [Delimiter=",", Columns=29, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"BillFromEntityDetailId_child", Int64.Type}}),
+		    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"BillFromDisplayName", "BillFromCode", "BillFromAccountingcode", "BillFromSubcommunity", "BillFromAddr1", "BillFromAddr2", "BillFromCity", "BillFromState", "BillFromPostalcode", "BillFromCountrycode", "BillFromPhonenumber", "BillFromCreateddate", "BillFromProgramstartdate", "BillFromIsactive", "BillFromIsterminated", "BillFromTerminationdate", "BillFromTransactionablelocation", "BillFromEntitycode", "BillFromCommunitycode", "BillFromLastupdateddate", "BillFromSubcommunityid", "BillFromSubcommunityname", "BillFromNewName", "Index", "BillFromSegmentcategory"}),
+		    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns",{{"BillFromVendortype", type text}, {"BillFromEntityDetailId", Int64.Type}, {"BillFromLegalName", type text}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type1",{{"BillFromLegalName", "Supplier"}, {"BillFromVendortype", "Supplier Type"}}),
+		    #"Grouped Rows" = Table.Group(#"Renamed Columns", {"BillFromEntityDetailId", "Supplier", "Supplier Type"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+		    #"Removed Columns1" = Table.RemoveColumns(#"Grouped Rows",{"Count"}),
+		    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns1",{{"BillFromEntityDetailId", Int64.Type}, {"Supplier", type text}, {"Supplier Type", type text}})
+		in
+		    #"Changed Type2"
+	lineageTag: 9db535e2-3fb0-447e-996e-5536963b21f0
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression BillTo_C =
+		let
+		    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\BillTo_C.csv"), [Delimiter=",", Columns=20, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"BillToEntityDetailId", Int64.Type}}),
+		    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"BillToCreditlimit", "BillToAddr1", "BillToAddr2", "BillToCity", "BillToState", "BillToPostalcode", "BillToCreateddate", "BillToCode", "BillToAccountingCode", "billTosubCommunityId", "billTosubCommunityName"}),
+		    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns",{{"Territory", type text}, {"Region", type text}, {"BillToCustomerrep", type text}, {"BillToLegalName", type text}, {"BillToTerminationdate", type datetime}, {"BillToIsterminated", type text}, {"BillToProgramstartdate", type datetime}, {"BillToCountrycode", type text}}),
+		    #"Changed Type1a" = Table.TransformColumnTypes(#"Changed Type1",{{"BillToTerminationdate", type date}, {"BillToProgramstartdate", type date}}),
+		    #"Added MemberStartYear" = Table.AddColumn(#"Changed Type1a", "MemberStartYear", each Date.Year([BillToProgramstartdate]), Int64.Type),
+		    #"Calculated Age" = Table.TransformColumns(#"Added MemberStartYear",{{"BillToProgramstartdate", each Date.From(DateTime.LocalNow()) - _, type duration}}),
+		    #"Changed Type2" = Table.TransformColumnTypes(#"Calculated Age",{{"BillToProgramstartdate", Int64.Type}}),
+		    #"Added Custom" = Table.AddColumn(#"Changed Type2", "Customer Acct Age (Years)", each [BillToProgramstartdate] / 360),
+		    #"Changed Type3" = Table.TransformColumnTypes(#"Added Custom",{{"Customer Acct Age (Years)", type number}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type3",{{"BillToIsterminated", "Terminated"}, {"BillToLegalName", "Customer"}, {"BillToCustomerrep", "Sales Executive"}}),
+		    #"Removed Columns1" = Table.RemoveColumns(#"Renamed Columns",{"BillToProgramstartdate", "BillToTerminationdate"}),
+		    #"Changed Type4" = Table.TransformColumnTypes(#"Removed Columns1",{{"BillToEntityDetailId", Int64.Type}, {"BillToCountrycode", type text}, {"Terminated", type text}, {"Customer", type text}, {"Sales Executive", type text}, {"Region", type text}, {"Territory", type text}})
+		in
+		    #"Changed Type4"
+	lineageTag: 6c3250c3-f142-4968-8f8c-156673c2c960
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'BillFrom_C (2)' =
+		let
+		    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\BillFrom_C.csv"), [Delimiter=",", Columns=29, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"BillFromEntityDetailId_child", Int64.Type}, {"BillFromDisplayName", type text}, {"BillFromCode", type text}, {"BillFromAccountingcode", type text}, {"BillFromLegalName", type text}, {"BillFromSubcommunity", type text}, {"BillFromAddr1", type text}, {"BillFromAddr2", type text}, {"BillFromCity", type text}, {"BillFromState", type text}, {"BillFromPostalcode", type text}, {"BillFromCountrycode", type text}, {"BillFromPhonenumber", type text}, {"BillFromCreateddate", type datetime}, {"BillFromProgramstartdate", type datetime}, {"BillFromIsactive", type text}, {"BillFromIsterminated", type text}, {"BillFromTerminationdate", type datetime}, {"BillFromTransactionablelocation", type text}, {"BillFromEntitycode", type text}, {"BillFromCommunitycode", type text}, {"BillFromLastupdateddate", type datetime}, {"BillFromSubcommunityid", Int64.Type}, {"BillFromSubcommunityname", type text}, {"BillFromNewName", type text}, {"BillFromEntityDetailId", Int64.Type}, {"Index", Int64.Type}, {"BillFromVendortype", type text}, {"BillFromSegmentcategory", type text}}),
+		    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"BillFromVendortype", type text}, {"BillFromEntityDetailId", Int64.Type}, {"BillFromLegalName", type text}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type1",{{"BillFromLegalName", "Supplier"}, {"BillFromVendortype", "Supplier Type"}}),
+		    #"Changed Type2" = Table.TransformColumnTypes(#"Renamed Columns",{{"BillFromEntityDetailId", Int64.Type}, {"Supplier", type text}, {"Supplier Type", type text}})
+		in
+		    #"Changed Type2"
+	lineageTag: d2f81a6f-a4e9-4740-a10e-df23f0729f80
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression DataFolder = "C:\Portfolio Data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: e4b3f226-7912-4ae4-bcd5-43fb0d8823e8
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+

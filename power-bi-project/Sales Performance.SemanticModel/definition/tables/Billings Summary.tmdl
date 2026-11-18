@@ -1,0 +1,84 @@
+table 'Billings Summary'
+	lineageTag: 90a602fe-a067-418b-8f66-a5f0fddbc1f7
+
+	column InvoiceYear
+		formatString: 0
+		lineageTag: 37133ec6-432b-4acd-b251-1bcf141b8252
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: Invoice_Detailed[InvoiceYear]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Spend Label'
+		lineageTag: aa1177ac-a0bc-4658-8a57-20145eae7f6e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Invoice_Detailed[New Spend Label]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Billings US'
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 039e6d47-3950-4237-82a8-5f8237f20891
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Total Billings US]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column bt_bf_key
+		lineageTag: 1b6339ca-8f4d-4c51-b1ba-dd16a81f8a6b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Invoice_Detailed[bt_bf_key]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Billings US (All Years)'
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 5faf3611-70d0-434f-96ad-01f65472edf5
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Total Billings US (All Years)]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column billToEntityDetailId
+		formatString: 0
+		lineageTag: 1bda95e5-eea4-4ff2-948c-aa7b86239962
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Invoice_Detailed[billToEntityDetailId]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Billings Summary' = calculated
+		mode: import
+		source =
+				
+				ADDCOLUMNS(
+				    SUMMARIZE(
+				        FILTER(
+				            'Invoice_Detailed',
+				            'Invoice_Detailed'[New Spend Label] IN { "New Logo", "Expansion" }
+				        ),
+				        'Invoice_Detailed'[bt_bf_key],
+				        'Invoice_Detailed'[BillToEntityDetailId],
+				        'Invoice_Detailed'[InvoiceYear],
+				        'Invoice_Detailed'[New Spend Label],
+				        "Total Billings US", SUM('Invoice_Detailed'[Billings US])
+				    ),
+				    "Total Billings US (All Years)",
+				    CALCULATE(
+				        SUM('Invoice_Detailed'[Billings US]),
+				        ALLEXCEPT('Invoice_Detailed', 'Invoice_Detailed'[bt_bf_key])
+				    )
+				)
+
+	annotation PBI_Id = cba5f1f1daf5451d9d9b857c95a179a9
+

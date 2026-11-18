@@ -1,0 +1,489 @@
+table Invoice_Detailed
+	lineageTag: 529249ad-ad70-450d-b09e-817aadcedd6c
+
+	measure 'YTD Total Billings' =
+			
+			ROUND(
+			    CALCULATE(
+			        SUM('Invoice_Detailed'[Billings US])
+			        ,USERELATIONSHIP(
+			            'FirstInvoiceDate'[bt_bf_key],'Invoice_Detailed'[bt_bf_key]
+			        )
+			),0)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 9fed136e-3b72-4662-87b9-a4d2a96f2468
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'First Month Billings' =
+			
+			
+			ROUND(
+			    SUMX(
+			        'Calendar',
+			        var FirstMonth = 'Calendar'[Date]
+			    RETURN
+			        CALCULATE(
+			            SUM('Invoice_Detailed'[Billings US])
+			            ,'Invoice_Detailed'[MonthStart] = FirstMonth
+			            ,USERELATIONSHIP(
+			            'FirstInvoiceDate'[bt_bf_key],'Invoice_Detailed'[bt_bf_key]
+			        )
+			        )
+			),0)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 01697712-cf2e-4eec-a592-bd91ec58ca9d
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Cumulative Billings' =
+			
+			VAR CurrentWeek =
+			    MAX('Invoice_Detailed'[MonthStart])
+			
+			RETURN
+			CALCULATE(
+			    SUM('Invoice_Detailed'[Billings US]),
+			    FILTER(
+			        ALL('Invoice_Detailed'[MonthStart])
+			        ,'Invoice_Detailed'[MonthStart] <= CurrentWeek
+			    )
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 9d44ad11-492d-4681-aab1-267b763f49a6
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'New Logo Billings' =
+			
+			CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    Invoice_Detailed[LabelChurn] = "New Logo"
+			)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 38df3557-e0fc-454a-bb2f-74312697fb5a
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Expansion Billings' =
+			
+			CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    Invoice_Detailed[LabelChurn] = "Expansion"
+			)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: cb27715f-348e-4466-9a2f-2b4c738f2e57
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Churn Billings Card' =
+			
+			var a = CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    Invoice_Detailed[LabelChurn] = "Churn"
+			)
+			RETURN IF(ISBLANK(a), 0, a)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: ccd15a66-d6e7-4cfb-a1cd-7d7f9bb05648
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure '2025 New Billings' =
+			
+			VAR CurrentMonth =
+			    SELECTEDVALUE('Calendar'[Month Number])
+			RETURN
+			CALCULATE(
+			    [Expansion Billings] + [New Logo Billings],
+			    FILTER(
+			        ALL('Calendar'),
+			        'Calendar'[Year] = 2025
+			            && 'Calendar'[Month Number] <= CurrentMonth
+			    )
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 72c61f82-20b9-4b02-8c34-1111c570905c
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure '2026 New Billings' =
+			
+			CALCULATE(
+			    [Expansion Billings] + [New Logo Billings],
+			    FILTER(
+			        ALL('Calendar'),
+			        'Calendar'[Year] = 2026 &&
+			        'Calendar'[Date] <= MAX('Calendar'[Date])
+			    )
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 6b2b5ece-318e-4c3f-a764-67d9ee690ecf
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Churn Billings' =
+			
+			CALCULATE(
+			    SUM(Invoice_Detailed[Billings US]),
+			    Invoice_Detailed[LabelChurn] = "Churn"
+			)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: c857af09-a553-42c2-be8b-1cf05a285577
+
+	measure 'Churn Programs' = "TBD"
+		lineageTag: 86ce8583-692d-4fd7-858c-c291f5d6b7c3
+
+	measure '2025 Cohort Cumulative Billings' =
+			
+			VAR CurrentDate =
+			    MAX ( 'Calendar'[Date] )
+			
+			-- Bill-to/bill-for relationships with new logo or expansion billings in 2025
+			VAR Cohort2025 =
+			    CALCULATETABLE (
+			        FILTER (
+			            VALUES ( Invoice_Detailed[bt_bf_key] ),
+			            [Expansion Billings] + [New Logo Billings] > 0
+			        ),
+			        ALL ( 'Calendar' ),
+			        'Calendar'[Year] = 2025
+			    )
+			
+			-- 2025 portion: new logo + expansion only
+			VAR NewBillings2025 =
+			    CALCULATE (
+			        [Expansion Billings] + [New Logo Billings],
+			        ALL ( 'Calendar' ),
+			        'Calendar'[Date] >= DATE ( 2025, 1, 1 ),
+			        'Calendar'[Date] <= MIN ( CurrentDate, DATE ( 2025, 12, 31 ) ),
+			        Cohort2025
+			    )
+			
+			-- 2026+ portion: all billings from the cohort
+			VAR AllBillings2026 =
+			    IF (
+			        CurrentDate >= DATE ( 2026, 1, 1 ),
+			        CALCULATE (
+			            [YTD Billings Total],   -- replace with your total billings measure
+			            ALL ( 'Calendar' ),
+			            'Calendar'[Date] >= DATE ( 2026, 1, 1 ),
+			            'Calendar'[Date] <= CurrentDate,
+			            Cohort2025
+			        ),
+			        0
+			    )
+			
+			RETURN
+			    IF ( CurrentDate <= EOMONTH ( TODAY (), 0 ), NewBillings2025 + AllBillings2026 )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 3fd4abd8-33ae-482e-97df-8775cfa31d49
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'YTD Billings Total' = SUM('Invoice_Detailed'[Billings US])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: ca371866-162a-4f00-a607-95a0eb5dee55
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure '2026 Cohort Cumulative Billings' =
+			
+			VAR CurrentDate =
+			    MAX ( 'Calendar'[Date] )
+			
+			-- Bill-to/bill-for relationships with new logo or expansion billings in 2025
+			VAR Cohort2025 =
+			    CALCULATETABLE (
+			        FILTER (
+			            VALUES ( Invoice_Detailed[bt_bf_key] ),
+			            [Expansion Billings] + [New Logo Billings] > 0
+			        ),
+			        ALL ( 'Calendar' ),
+			        'Calendar'[Year] = 2026
+			    )
+			
+			-- 2025 portion: new logo + expansion only
+			VAR NewBillings2026 =
+			    CALCULATE (
+			        [Expansion Billings] + [New Logo Billings],
+			        ALL ( 'Calendar' ),
+			        'Calendar'[Date] >= DATE ( 2026, 1, 1 ),
+			        'Calendar'[Date] <= MIN ( CurrentDate, DATE ( 2026, 12, 31 ) ),
+			        Cohort2025
+			    )
+			
+			
+			RETURN
+			    IF ( CurrentDate <= EOMONTH ( TODAY (), 0 ), NewBillings2026 )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 2adf7443-aa55-4206-a865-8c1ff704e0ca
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure Headline =
+			
+			VAR Gross =  [Gross New 2025]
+			VAR Churn = ABS ( COALESCE ( [Churn Billings 2025], 0 ) )
+			VAR Net   = Gross - Churn
+			VAR Pct   = DIVIDE ( Churn, Gross )
+			VAR Cum   = [2025 Cohort Cumulative Billings]
+			VAR YTD26 = Cum - Gross
+			RETURN
+			"In 2025 Sales added " & FORMAT ( Gross / 1000000, "$0.0" ) & "M in new billings; churn removed "
+			& FORMAT ( Churn / 1000000, "$0.0" ) & "M (" & FORMAT ( Pct, "0%" ) & " of New), leaving "
+			& FORMAT ( Net / 1000000, "$0.0" ) & "M net.  "
+			& "These 2025 new cohorts have generated an additional "
+			& FORMAT ( YTD26 / 1000000, "$0.0" ) & "M in billings in 2026 YTD."
+		lineageTag: 8905adaa-63dc-41b4-83a7-645383f19a82
+
+	measure 'Gross New' = [2025 New Billings]
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 32f16da6-756e-43ac-8d49-1b2b0dd7584b
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Churn Billings 2025' =
+			
+			CALCULATE ( [Churn Billings], 'Calendar'[Year] = 2025 )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 289380e5-3c4f-4a69-987a-eb65a3885b60
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Gross New 2025' =
+			
+			CALCULATE ( [New Logo Billings] + [Expansion Billings], 'Calendar'[Year] = 2025 )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		isHidden
+		lineageTag: 78908496-c0d0-49d9-9b67-dc37657a96bc
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure '2025 Year-End Total' =
+			
+			VAR IsYE =
+			    MAX ( 'Calendar'[Year] ) = 2025
+			    && MAX ( 'Calendar'[Month Number] ) = 12
+			RETURN
+			    IF ( IsYE, [2025 Cohort Cumulative Billings] )
+		formatString: \$#,0.0;(\$#,0.0);\$#,0.0
+		lineageTag: 6c2045f7-3d55-4533-bcc6-41d8e34027a4
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'New YTD Label' = FORMAT ( [2025 Year-End Total] / 1000000, "$0.0" ) & "2025"
+		lineageTag: 2afee04c-6f96-4d8a-aeaf-c8f4aead52b7
+
+	column MonthStart
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 7eefb400-7640-48d8-98b8-e339af6d2d44
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billToEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: ab6e9135-c083-4480-ac6d-6c875e4839ce
+		summarizeBy: none
+		sourceColumn: billToEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column bt_bf_key
+		dataType: string
+		lineageTag: ef434e89-fbf2-4719-bf89-5d5662829b80
+		summarizeBy: none
+		sourceColumn: bt_bf_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column billFromEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: df7d7fde-46e0-4cf1-9d54-fc6af393b9fc
+		summarizeBy: count
+		sourceColumn: billFromEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ParentID
+		dataType: int64
+		formatString: 0
+		lineageTag: 49e347dd-9b70-439e-a7d0-79b68263de5d
+		summarizeBy: none
+		sourceColumn: ParentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstInvoiceYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 5ed2a9d5-cd27-41b6-9b88-735bbfc876aa
+		summarizeBy: sum
+		sourceColumn: FirstInvoiceYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column NewSpend
+		dataType: string
+		lineageTag: 874b4cfb-4168-4075-88b1-7f681523ff75
+		summarizeBy: none
+		sourceColumn: NewSpend
+
+		annotation SummarizationSetBy = Automatic
+
+	column billToYearStart
+		dataType: int64
+		formatString: 0
+		lineageTag: 4436a77f-a697-4cb3-b146-0ee5282a7c51
+		summarizeBy: sum
+		sourceColumn: billToYearStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Customer Spend'
+		dataType: string
+		lineageTag: e3b2be0d-c58c-4f91-a51d-b53d62b9608a
+		summarizeBy: none
+		sourceColumn: New Customer Spend
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Spend Label'
+		dataType: string
+		lineageTag: 104b8323-7d4c-4081-99fa-ceb6e55ff81e
+		summarizeBy: none
+		sourceColumn: New Spend Label
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpendType
+		dataType: string
+		lineageTag: 694d69a9-7801-4ca5-a7ee-38349a858797
+		summarizeBy: none
+		sourceColumn: SpendType
+
+		annotation SummarizationSetBy = Automatic
+
+	column LabelChurn = IF([SpendType] <> "Churn", [New Spend Label], "Churn")
+		lineageTag: 024f74a4-f99e-4dd9-82e7-d6c0d9ef23df
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: a17b8b4a-e6f2-492c-9cc4-7e66c2b1c8e0
+		summarizeBy: sum
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column APTrxAmt
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: af14aba1-7260-40f2-9f41-865a28df1259
+		summarizeBy: sum
+		sourceColumn: APTrxAmt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Billings US'
+		dataType: decimal
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: b12f6cdc-07c7-4da7-8616-91e519412cf2
+		summarizeBy: sum
+		sourceColumn: Billings US
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'AP Billings US'
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: e68e9811-56ed-4412-9398-2b6827f1a91f
+		summarizeBy: sum
+		sourceColumn: AP Billings US
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'AR Billings US'
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: eb672796-be7b-42d9-a3fa-a3dd293ddcac
+		summarizeBy: sum
+		sourceColumn: AR Billings US
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column InvoiceYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 382b6dcc-10be-46aa-83d4-b5a1bf855256
+		summarizeBy: sum
+		sourceColumn: InvoiceYear
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Invoice_Detailed = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\Invoice_Detailed.csv"), [Delimiter=",", Columns=32, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"MonthStart", type datetime}, {"ARCurrency", type text}, {"APCurrency", type text}, {"CADtoUSDFX", type number}, {"billToEntityDetailId", Int64.Type}, {"billFromEntityDetailId", Int64.Type}, {"APTrxAmt", Currency.Type}, {"Pay2SupplierAmt", Currency.Type}, {"AP Billings US", Currency.Type}, {"AR Billings US", Currency.Type}}),
+				    #"Removed Columns4" = Table.RemoveColumns(#"Changed Type",{"ARPartAmt", "TaxAmt", "PartAmt", "LaborAmt", "FreightAmt", "SubletAmt", "ShopAmt", "ExpenseAmt", "MiscAmt", "PartCoreAmt", "FETAmt", "OtherAmt"}),
+				    #"Changed Type7" = Table.TransformColumnTypes(#"Removed Columns4",{{"ARTrxAmt", Currency.Type}}),
+				    #"Added Custom4" = Table.AddColumn(#"Changed Type7", "Custom", each if [APCurrency] <> "USD" then [APTrxAmt] * [CADtoUSDFX] else [APTrxAmt]),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Custom4",{"WeekNumber", "EndOfWeek", "APCurrency", "CreditCount", "InvCount", "ARCurrency", "CADtoUSDFX", "InvKey", "shipToEntityDetailId", "Index", "billFromEntityDetailId_child", "BillFromVendortype"}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Removed Columns", "billToEntityDetailId", "billToEntityDetailId - Copy"),
+				    #"Duplicated Column1" = Table.DuplicateColumn(#"Duplicated Column", "billFromEntityDetailId", "billFromEntityDetailId - Copy"),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Duplicated Column1", "bt_bf_key", each Text.Combine({Text.From([#"billToEntityDetailId - Copy"], "en-US"), Text.From([#"billFromEntityDetailId - Copy"], "en-US")}, "-"), type text),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Inserted Merged Column",{"billToEntityDetailId - Copy", "billFromEntityDetailId - Copy"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns1",{{"Pay2SupplierAmt", Currency.Type}, {"APTrxAmt", Currency.Type}, {"ARTrxAmt", Currency.Type}}),
+				    #"Assign$" = Table.RenameColumns(#"Changed Type1",{{"Custom", "Billings US"}}),
+				    #"Changed Type8" = Table.TransformColumnTypes(#"Assign$",{{"Billings US", Currency.Type}}),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Changed Type8",{"Pay2SupplierAmt", "ARTrxAmt"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns2",{{"MonthStart", type date}, {"billToEntityDetailId", Int64.Type}, {"billFromEntityDetailId", Int64.Type}, {"Billings US", Currency.Type}, {"bt_bf_key", type text}}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Changed Type2", each [MonthStart] > #date(2023, 12, 31)),
+				    #"Added Custom3" = Table.AddColumn(#"Filtered Rows1", "SpendType", each "Billings"),
+				    #"Changed Type6" = Table.TransformColumnTypes(#"Added Custom3",{{"SpendType", type text}}),
+				    #"Appended Query" = Table.Combine({#"Changed Type6", ChurnBillings}),
+				    #"Merged Queries" = Table.NestedJoin(#"Appended Query", {"billToEntityDetailId"}, FULL_BillTo, {"billToEntityDetailId"}, "FULL_BillTo", JoinKind.LeftOuter),
+				    #"Expanded FULL_BillTo" = Table.ExpandTableColumn(#"Merged Queries", "FULL_BillTo", {"ParentID"}, {"ParentID"}),
+				    #"Added InvoiceYear" = Table.AddColumn(#"Expanded FULL_BillTo", "InvoiceYear", each Date.Year([MonthStart]), Int64.Type),
+				    #"Added Index" = Table.AddIndexColumn(#"Added InvoiceYear", "Index", 1, 1, Int64.Type),
+				    #"Merged Queries1" = Table.NestedJoin(#"Added Index", {"bt_bf_key"}, FirstInvoiceDate, {"bt_bf_key"}, "FirstInvoiceDate", JoinKind.LeftOuter),
+				    #"Expanded FirstInvoiceDate" = Table.ExpandTableColumn(#"Merged Queries1", "FirstInvoiceDate", {"FirstInvoiceYear"}, {"FirstInvoiceYear"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Expanded FirstInvoiceDate",{{"InvoiceYear", Int64.Type}, {"FirstInvoiceYear", Int64.Type}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type3", "NewSpend", each if [FirstInvoiceYear] = [InvoiceYear] then "New" else "Not"),
+				    #"Merged Queries3" = Table.NestedJoin(#"Added Custom", {"billToEntityDetailId"}, FULL_BillTo, {"billToEntityDetailId"}, "FULL_BillTo.1", JoinKind.LeftOuter),
+				    #"Expanded FULL_BillTo.1" = Table.ExpandTableColumn(#"Merged Queries3", "FULL_BillTo.1", {"billToYearStart"}, {"billToYearStart"}),
+				    #"Changed Type4" = Table.TransformColumnTypes(#"Expanded FULL_BillTo.1",{{"billToYearStart", Int64.Type}}),
+				    #"Added Custom1" = Table.AddColumn(#"Changed Type4", "New Customer Spend", each if [billToYearStart] = [InvoiceYear] then "New Customer" else "Not"),
+				    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "New Spend Label", each if [New Customer Spend] <> "Not" then "New Customer" else if [NewSpend] <> "Not" then "New Program" else "Not"),
+				    #"Changed Type5" = Table.TransformColumnTypes(#"Added Custom2",{{"New Spend Label", type text}, {"New Customer Spend", type text}, {"NewSpend", type text}, {"billToYearStart", Int64.Type}, {"Billings US", Currency.Type}, {"billToEntityDetailId", Int64.Type}, {"billFromEntityDetailId", Int64.Type}, {"MonthStart", type date}, {"bt_bf_key", type text}, {"SpendType", type text}, {"ParentID", Int64.Type}, {"InvoiceYear", Int64.Type}, {"FirstInvoiceYear", Int64.Type}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type5","New Program","Expansion",Replacer.ReplaceText,{"New Spend Label"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","New Customer","New Logo",Replacer.ReplaceText,{"New Spend Label"})
+				in
+				    #"Replaced Value1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

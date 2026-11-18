@@ -1,0 +1,142 @@
+table ChurnBillings
+	lineageTag: 6fda8aef-afd0-40e8-b3ff-fb5c8f96e425
+
+	column MonthStart
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a683c2fe-6b35-4473-82dc-9843e785c95a
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+		variation Variation
+			isDefault
+			relationship: f6ea98e2-66fa-4dbf-afe8-0cfd64b1d83e
+			defaultHierarchy: LocalDateTable_95a53a79-a1c3-4a1b-adf3-edddd9328185.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column billToEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: a234e22b-854c-476a-bcd0-2bd083b197a0
+		summarizeBy: sum
+		sourceColumn: billToEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column billFromEntityDetailId
+		dataType: int64
+		formatString: 0
+		lineageTag: d1efa67c-ca1a-474d-9b78-e6a3a587dedb
+		summarizeBy: count
+		sourceColumn: billFromEntityDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column bt_bf_key
+		dataType: string
+		lineageTag: bd99f2fe-97f3-43c0-8468-5663045b6355
+		summarizeBy: none
+		sourceColumn: bt_bf_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpendType
+		dataType: string
+		lineageTag: f67508c6-b31f-4d17-b6af-a02b381cd18d
+		summarizeBy: none
+		sourceColumn: SpendType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Billings US'
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 9026e8b0-36b2-48d4-b8fe-2350ba226dac
+		summarizeBy: sum
+		sourceColumn: Billings US
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition ChurnBillings = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\Invoice_Detailed_c.csv"), [Delimiter=",", Columns=32, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type8" = Table.TransformColumnTypes(#"Promoted Headers",{{"MonthStart", type datetime}, {"EndOfWeek", type datetime}, {"WeekNumber", Int64.Type}, {"billToEntityDetailId", Int64.Type}, {"billFromEntityDetailId_child", Int64.Type}, {"billFromEntityDetailId", Int64.Type}, {"Index", Int64.Type}, {"shipToEntityDetailId", Int64.Type}, {"InvCount", Int64.Type}, {"APTrxAmt", Currency.Type}, {"AR_US", Currency.Type}, {"AP_US", Currency.Type}, {"CADtoUSDFX", type number}, {"APCurrency", type text}, {"BillFromVendortype", type text}, {"InvKey", type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type8", "Custom", each if [APCurrency] <> "USD" then [APTrxAmt] * [CADtoUSDFX] else [APTrxAmt]),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Added Custom",{"APTrxAmt"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Removed Columns2",{{"Custom", "APTrxAmt"}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Renamed Columns1",{{"APTrxAmt", Currency.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type1",{"WeekNumber", "ARTrxAmt", "InvCount", "Index", "shipToEntityDetailId", "BillFromVendortype", "InvKey", "AP_US", "TaxAmt", "PartAmt", "LaborAmt", "FreightAmt", "SubletAmt", "ShopAmt", "ExpenseAmt", "MiscAmt", "PartCoreAmt", "FETAmt", "OtherAmt", "AR_US", "MonthDate", "APCurrency", "CreditCount", "ARCurrency", "CADtoUSDFX", "ARPartAmt"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{{"billToEntityDetailId", Int64.Type}, {"billFromEntityDetailId_child", Int64.Type}, {"billFromEntityDetailId", Int64.Type}, {"APTrxAmt", Currency.Type}, {"EndOfWeek", type date}}),
+				    #"Removed Columns5" = Table.RemoveColumns(#"Changed Type",{"billFromEntityDetailId_child"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Removed Columns5", {"billToEntityDetailId"}, FULL_BillTo, {"billToEntityDetailId"}, "FULL_BillTo", JoinKind.LeftOuter),
+				    #"Expanded FULL_BillTo2" = Table.ExpandTableColumn(#"Merged Queries2", "FULL_BillTo", {"MaxTerminationDate"}, {"MaxTerminationDate"}),
+				    #"Filtered Rows6" = Table.SelectRows(#"Expanded FULL_BillTo2", each ([MaxTerminationDate] <> null)),
+				    #"Changed Type5" = Table.TransformColumnTypes(#"Filtered Rows6",{{"MaxTerminationDate", type date}}),
+				    #"Grouped Rows" = Table.Group(
+				        #"Changed Type5",
+				        {"billToEntityDetailId", "MaxTerminationDate", "billFromEntityDetailId"},
+				        {
+				            {
+				                "AR_US_Last12Months",
+				                (t) =>
+				                    let
+				                        EndDate   = t[MaxTerminationDate]{0},
+				                        StartDate = Date.AddYears(EndDate, -1),
+				                        InWindow  = Table.SelectRows(
+				                            t,
+				                            each [EndOfWeek] > StartDate and [EndOfWeek] <= EndDate
+				                        )
+				                    in
+				                        List.Sum(InWindow[APTrxAmt]) ?? 0,
+				                type number
+				            }
+				        }
+				    ),
+				    #"Added AvgWeekly" = Table.AddColumn(
+				        #"Grouped Rows",
+				        "AVGWeekly",
+				        each [AR_US_Last12Months] / 12,
+				        type number
+				    ),
+				    #"Typed Amounts" = Table.TransformColumnTypes(#"Added AvgWeekly", {{"AVGWeekly", Currency.Type}, {"AR_US_Last12Months", Currency.Type}}),
+				    #"Added JoinKey" = Table.AddColumn(#"Typed Amounts", "JoinKey", each 1),
+				    #"Merged ChurnTable" = Table.NestedJoin(#"Added JoinKey", {"JoinKey"}, ChurnTable, {"JoinKey"}, "ChurnTable", JoinKind.Inner),
+				    #"Expanded ChurnTable" = Table.ExpandTableColumn(#"Merged ChurnTable", "ChurnTable", {"MonthStart", "EndOfWeek", "Year"}, {"MonthStart", "EndOfWeek", "Year"}),
+				    #"Typed Dates" = Table.TransformColumnTypes(#"Expanded ChurnTable", {{"MaxTerminationDate", type date}, {"EndOfWeek", type date}, {"Year", Int64.Type}}),
+				    #"Kept Post Termination" = Table.SelectRows(#"Typed Dates", each [EndOfWeek] >= [MaxTerminationDate]),
+				    #"Added TY" = Table.AddColumn(#"Kept Post Termination", "TY", each Date.Year([MaxTerminationDate]), Int64.Type),
+				    #"Added PrevDecember" = Table.AddColumn(#"Added TY", "PrevDecember", each #date([TY] - 1, 12, 1), type date),
+				    #"Added FilterRowsOnDates" = Table.AddColumn(
+				        #"Added PrevDecember",
+				        "FilterRowsOnDates",
+				        each if [Year] = [TY] then "Keep" else if [MonthStart] = [PrevDecember] then "Keep" else "Drop",
+				        type text
+				    ),
+				    #"Kept Dates" = Table.SelectRows(#"Added FilterRowsOnDates", each [FilterRowsOnDates] = "Keep"),
+				    #"Positive Spend Only" = Table.SelectRows(#"Kept Dates", each [AVGWeekly] > 0),
+				    #"Selected Columns" = Table.SelectColumns(#"Positive Spend Only", {"MonthStart", "billToEntityDetailId", "billFromEntityDetailId", "AVGWeekly"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Selected Columns", {{"AVGWeekly", "Billings US"}}),
+				    #"Added SpendType" = Table.AddColumn(#"Renamed Columns", "SpendType", each "Churn", type text),
+				    #"Removed Duplicates" = Table.Distinct(#"Added SpendType"),
+				    #"Negated Billings" = Table.TransformColumns(#"Removed Duplicates", {{"Billings US", each _ * -1, Currency.Type}}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Negated Billings", {"MonthStart", "billToEntityDetailId", "billFromEntityDetailId", "Billings US", "SpendType"}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Reordered Columns", "billToEntityDetailId", "billToEntityDetailId - Copy"),
+				    #"Duplicated Column1" = Table.DuplicateColumn(#"Duplicated Column", "billFromEntityDetailId", "billFromEntityDetailId - Copy"),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Duplicated Column1", "bt_bf_key", each Text.Combine({Text.From([#"billToEntityDetailId - Copy"], "en-US"), Text.From([#"billFromEntityDetailId - Copy"], "en-US")}, "-"), type text),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Inserted Merged Column",{"billToEntityDetailId - Copy", "billFromEntityDetailId - Copy"}),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Removed Columns1",{"MonthStart", "billToEntityDetailId", "billFromEntityDetailId", "Billings US", "bt_bf_key", "SpendType"})
+				in
+				    #"Reordered Columns1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

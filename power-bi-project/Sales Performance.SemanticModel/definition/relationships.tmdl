@@ -1,0 +1,86 @@
+relationship AutoDetected_b3b54141-a3cf-47c4-8f9f-d050b7c28fed
+	isActive: false
+	fromColumn: Invoice_Detailed.bt_bf_key
+	toColumn: FirstInvoiceDate.bt_bf_key
+
+relationship b05c2e9d-20b2-44ea-8300-8ab4247b2d8c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Calendar.Date
+	toColumn: LocalDateTable_14f4ec19-4a7a-4df1-a29d-e843d463cccf.Date
+
+relationship b854b081-a572-a0b8-3260-1f0c1f64fa52
+	fromColumn: FirstInvoiceDate.FirstMonthInvoice
+	toColumn: Calendar.Date
+
+relationship ab2edc33-627e-4ab9-b85a-f7d9856b3af4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Calendar.'Week Begin'
+	toColumn: LocalDateTable_be07a0c7-7339-4d12-9c75-78fd9b8f5d5f.Date
+
+relationship 4395d8c1-d3c6-4e02-bae5-7c6f25595e3a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FULL_BillTo.billToCreatedDate
+	toColumn: LocalDateTable_f349b5e1-8150-41ba-abbc-0e119c5dc703.Date
+
+relationship 3d83437d-d6e2-42d7-b81f-b9bb76fef69a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FULL_BillTo.billToProgramStartDate
+	toColumn: LocalDateTable_31efdeb9-a3fa-408a-96af-67bb652152d6.Date
+
+relationship a4fd866c-72dc-4662-a811-93f32cdd6b00
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FULL_BillTo.billToTerminationDate
+	toColumn: LocalDateTable_fb400d9c-6426-41e6-a9b8-597e62fe346e.Date
+
+relationship dcedf54a-55df-4395-958b-1625b5032531
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FULL_BillTo.billToLastUpdatedDate
+	toColumn: LocalDateTable_20baca9a-51b7-4ef7-b4f0-e25a84c2d3b8.Date
+
+relationship AutoDetected_b2d0803e-20ce-4c8e-b0fa-4efb374d7900
+	fromColumn: Invoice_Detailed.billToEntityDetailId
+	toColumn: FULL_BillTo.billToEntityDetailId
+
+relationship e6e988d6-6a53-49f7-a9db-e8583d950a12
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Churned Members'.MaxTerminationDate
+	toColumn: LocalDateTable_97c001ed-392e-411f-988c-7c79e24f7a23.Date
+
+relationship 1f055362-55a9-4798-aa7b-ac40f511a68a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FULL_BillTo.MaxTerminationDate
+	toColumn: LocalDateTable_563b4177-1bca-4243-bb05-0982860d9b26.Date
+
+relationship 9ddda287-6173-71b1-5394-e23985851d28
+	fromColumn: Invoice_Detailed.ParentID
+	toColumn: 'Churned Members'.ParentID
+
+relationship bd77da99-0dca-879f-0729-e59b2b914ec0
+	fromColumn: Invoice_Detailed.MonthStart
+	toColumn: Calendar.Date
+
+relationship 2c577bff-21fc-4db9-a1eb-2656f05ad2e5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ChurnTable.MonthStart
+	toColumn: LocalDateTable_6ed40f0c-8cf5-4ef9-a74c-57db10ba6295.Date
+
+relationship 268e9932-ea72-4944-a650-253197d73ca8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ChurnTable.EndOfWeek
+	toColumn: LocalDateTable_0790be63-645a-440c-8f69-ab952298118e.Date
+
+relationship f6ea98e2-66fa-4dbf-afe8-0cfd64b1d83e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ChurnBillings.MonthStart
+	toColumn: LocalDateTable_95a53a79-a1c3-4a1b-adf3-edddd9328185.Date
+
+relationship AutoDetected_a835cc4f-6a97-497d-a5bb-9ba7f1d093c5
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'BillTo_C (2)'.BillToEntityDetailId
+	toColumn: FULL_BillTo.billToEntityDetailId
+
+relationship 9daa6e2b-bbc8-002d-969d-00a0dd3862fb
+	fromColumn: 'Billings Summary'.billToEntityDetailId
+	toColumn: FULL_BillTo.billToEntityDetailId
+

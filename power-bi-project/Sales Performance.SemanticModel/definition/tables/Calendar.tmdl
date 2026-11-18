@@ -1,0 +1,166 @@
+table Calendar
+	lineageTag: d8271ba0-a9f6-4b8f-8c8a-89959764364b
+
+	column Date
+		formatString: General Date
+		lineageTag: f6939a07-782a-4d38-b10e-4560282e81eb
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: b05c2e9d-20b2-44ea-8300-8ab4247b2d8c
+			defaultHierarchy: LocalDateTable_14f4ec19-4a7a-4df1-a29d-e843d463cccf.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: f83da53b-563d-439e-9175-c839d5bb51b0
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Number'
+		formatString: 0
+		lineageTag: 2c740579-09d6-4d4d-a2fb-2c80003b0f87
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Quarter Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: 6a5c126d-9a36-4d7e-87d1-06b7b3d40d1f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		formatString: 0
+		lineageTag: 24321e03-2d96-42cf-beb7-96978016fbe4
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		lineageTag: 24cbd5d4-a8e3-4763-b230-c47f57653a50
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short'
+		lineageTag: b2e558d7-1520-4880-9ced-dd16f36b973e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Short]
+		sortByColumn: 'Month Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month-Year
+		lineageTag: 05edf6fe-7244-4eeb-a04d-6f548b675778
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month-Year]
+		sortByColumn: 'Month-Year Sort'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month-Year Sort'
+		formatString: 0
+		lineageTag: 1e835553-460e-45ac-b44c-0e89c4b1a8b8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month-Year Sort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		formatString: 0
+		lineageTag: 5fcace62-e197-422d-91c1-ef354397854f
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Week Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Month'
+		formatString: 0
+		lineageTag: 8d7769aa-96de-4fcd-8be1-46a6f60aba6e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Day of Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		lineageTag: 597ce612-694b-495f-936b-c4bfc12ed72a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week Number'
+		formatString: 0
+		lineageTag: b06f34db-c325-4688-baf7-90c3e011b739
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Day of Week Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Begin'
+		formatString: General Date
+		lineageTag: 9dfa18ab-d4b6-4e80-83b1-83e05602cc4d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Begin]
+
+		variation Variation
+			isDefault
+			relationship: ab2edc33-627e-4ab9-b85a-f7d9856b3af4
+			defaultHierarchy: LocalDateTable_be07a0c7-7339-4d12-9c75-78fd9b8f5d5f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Calendar = calculated
+		mode: import
+		source = ```
+				
+				VAR StartDate = MIN('Invoice_Detailed'[MonthStart]) -- Define your static start date here
+				VAR EndDate = TODAY()  -- Define your static end date here
+				-- Alternatively, use: VAR StartDate = MIN('Sales'[OrderDate]) to make it dynamic
+				
+				RETURN
+				ADDCOLUMNS (
+				    CALENDAR ( StartDate, EndDate ),
+				    "Year", YEAR ( [Date] ),
+				    "Quarter Number", QUARTER ( [Date] ),
+				    "Quarter", "Q" & FORMAT ( [Date], "Q" ),
+				    "Month Number", MONTH ( [Date] ),
+				    "Month Name", FORMAT ( [Date], "mmmm" ),
+				    "Month Short", FORMAT ( [Date], "mmm" ),
+				    "Month-Year", FORMAT ( [Date], "mmm-yyyy" ),
+				    "Month-Year Sort", YEAR ( [Date] ) * 100 + MONTH ( [Date] ),
+				    "Week Number", WEEKNUM ( [Date], 2 ),
+				    "Day of Month", DAY ( [Date] ),
+				    "Day Name", FORMAT ( [Date], "dddd" ),
+				    "Day of Week Number", WEEKDAY ( [Date], 2 ),
+				    "Week Begin", [Date] - WEEKDAY([Date],2) + 1
+				)
+				
+				```
+
+	annotation PBI_Id = f86173a2491647fd86668140cec0da69
+

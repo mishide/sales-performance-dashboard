@@ -1,0 +1,99 @@
+table ChurnTable
+	lineageTag: 9ddad308-7721-4e19-ba7e-9c79f6113569
+
+	column MonthStart
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f5250ffe-34dc-44dc-91bb-59747950febc
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+		variation Variation
+			isDefault
+			relationship: 2c577bff-21fc-4db9-a1eb-2656f05ad2e5
+			defaultHierarchy: LocalDateTable_6ed40f0c-8cf5-4ef9-a74c-57db10ba6295.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column WeekNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: b32b96a8-27c3-4fea-a4d1-d712df0c033c
+		summarizeBy: sum
+		sourceColumn: WeekNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column EndOfWeek
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: fce02c89-8861-4fc4-891e-c201ca017b75
+		summarizeBy: none
+		sourceColumn: EndOfWeek
+
+		variation Variation
+			isDefault
+			relationship: 268e9932-ea72-4944-a650-253197d73ca8
+			defaultHierarchy: LocalDateTable_0790be63-645a-440c-8f69-ab952298118e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year-Month
+		dataType: string
+		lineageTag: b75316c9-c47f-41c2-b2f5-02f198ef6a14
+		summarizeBy: none
+		sourceColumn: Year-Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column JoinKey
+		dataType: string
+		lineageTag: 8badf8f5-95b9-457e-bc16-6009581dfc44
+		summarizeBy: none
+		sourceColumn: JoinKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNo
+		dataType: string
+		lineageTag: d1e7fdd1-0e74-4742-be35-0021d57ed79b
+		summarizeBy: none
+		sourceColumn: MonthNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: string
+		lineageTag: f96c453c-7fa4-4990-b6e0-e754e1205d16
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ChurnTable = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(Text.TrimEnd(DataFolder, "\") & "\Invoice_Detailed_c.csv"), [Delimiter=",", Columns=32, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Promoted Headers",{"MonthStart", "WeekNumber", "EndOfWeek"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Other Columns",{{"EndOfWeek", type datetime}, {"MonthStart", type datetime}, {"WeekNumber", Int64.Type}}),
+				    #"Changed Type1a" = Table.TransformColumnTypes(#"Changed Type1",{{"EndOfWeek", type date}, {"MonthStart", type date}}),
+				    #"Added MonthNo" = Table.AddColumn(#"Changed Type1a", "MonthNo", each Text.From(Date.Month([MonthStart])), type text),
+				    #"Added Year" = Table.AddColumn(#"Added MonthNo", "Year", each Text.From(Date.Year([MonthStart])), type text),
+				    #"Added Year-Month" = Table.AddColumn(#"Added Year", "Year-Month", each Date.ToText([MonthStart], "yyyy-MM"), type text),
+				    #"Added Custom" = Table.AddColumn(#"Added Year-Month", "JoinKey", each 1),
+				    #"Removed Duplicates" = Table.Distinct(#"Added Custom"),
+				    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"EndOfWeek", Order.Ascending}}),
+				    #"Removed Duplicates1" = Table.Distinct(#"Sorted Rows", {"EndOfWeek"})
+				in
+				    #"Removed Duplicates1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
